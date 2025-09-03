@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отображение cpu</title>
+    <style>
+        body {
+        }
+    </style>
+</head>
+<body>
+    <h1>Отображение cpu:</h1>
+       <pre id="file-content">Загрузка...</pre>
+    <script>
+        function fetchFileContent() {    
+        fetch('cpu.txt')
+        .then(response => response.text()) 
+        .then(data => {
+                document.getElementById('file-content').textContent = data;
+            });
+        }       
+        setInterval(fetchFileContent, 2000);
+        fetchFileContent();
+    </script>
+</body>
