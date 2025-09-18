@@ -1,0 +1,107 @@
+networks:
+  zabbix-network:
+    external: true
+
+volumes:
+  zabbix-postgres:
+
+services:
+  postgres:
+    image: ${ZABBIX_POSTGRES_IMAGE_TAG}
+    container_name: zabbix-postgres
+    volumes:
+      - /opt/volumes/zabbix/zabbix-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${ZABBIX_DB_NAME}
+      POSTGRES_USER: ${ZABBIX_DB_USER}
+      POSTGRES_PASSWORD: ${ZABBIX_DB_PASSWORD}
+    networks:
+      - zabbix-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${ZABBIX_DB_NAME}", "-U", "${ZABBIX_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  zabbix-server:
+    image: ${ZABBIX_SERVER_IMAGE_TAG}
+    container_name: zabbix-server
+    environment:
+      DB_SERVER_HOST: postgres
+      DB_SERVER_PORT: 5432
+      POSTGRES_DB: ${ZABBIX_DB_NAME}
+      POSTGRES_USER: ${ZABBIX_DB_USER}
+      POSTGRES_PASSWORD: ${ZABBIX_DB_PASSWORD}
+      ZBX_CACHESIZE: ${ZABBIX_CACHESIZE}
+      ZBX_JAVAGATEWAY: zabbix-java-gateway # Name of your Java Gateway service
+      ZBX_JAVAGATEWAYPORT: 10052
+      ZBX_STARTJAVAPOLLERS: 5
+    networks:
+      - zabbix-network
+    volumes:
+      - /opt/volumes/zabbix/zabbix-server-snmptraps:/var/lib/zabbix/snmptraps
+      - /opt/volumes/zabbix/zabbix-server-export:/var/lib/zabbix/export
+    ports:
+      - "10051:10051"
+    healthcheck:
+      test: grep -qr "zabbix_server" /proc/*/status || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  zabbix-java-gateway:
+    image: zabbix/zabbix-java-gateway:latest
+    ports:
+      - "10052:10052"
+    networks:
+      - zabbix-network
+
+  zabbix-dashboard:
+    image: ${ZABBIX_WEB_IMAGE_TAG}
+    #image: dashboard:latest  
+    container_name: zabbix-dashboard
+    environment:
+      DB_SERVER_HOST: postgres
+      DB_SERVER_PORT: 5432
+      POSTGRES_DB: ${ZABBIX_DB_NAME}
+      POSTGRES_USER: ${ZABBIX_DB_USER}
+      POSTGRES_PASSWORD: ${ZABBIX_DB_PASSWORD}
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: ${ZABBIX_TIMEZONE}
+      ZBX_JAVAGATEWAY: "zabbix-java-gateway"
+    networks:
+      - zabbix-network
+    ports:
+      - "8085:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      zabbix-server:
+        condition: service_healthy
+
+  zabbix-agent:
+    container_name: zabbix-agent
+    image: ${ZABBIX_AGENT_IMAGE_TAG}
+    environment:
+      ZBX_HOSTNAME: Zabbix server
+      ZBX_SERVER_HOST: zabbix-server
+    networks:
+      - zabbix-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - zabbix-server
