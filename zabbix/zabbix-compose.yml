@@ -61,7 +61,8 @@ services:
     ports:
       - "10052:10052"
     networks:
-      - zabbix-network
+      - zabbix-networ
+    restart: unless-stopped
 
   zabbix-dashboard:
     image: ${ZABBIX_WEB_IMAGE_TAG}
