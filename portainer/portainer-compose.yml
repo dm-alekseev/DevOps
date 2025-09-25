@@ -1,0 +1,29 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:lts
+    container_name: portainer
+    ports:
+      - 9443:9443
+    extra_hosts:
+      # - 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/volumes/portainer:/data
+    environment:
+      - TZ
+      - LANG
+      - LANGUAGE
+      - LC_ALL
+      - AUTH_METHOD
+      - OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET
+      - OIDC_ISSUER_URL
+      - OIDC_SCOPE
+      - OIDC_RESPONSE_TYPE
+      - OIDC_REDIRECT_URI
+      - OIDC_USERNAME_CLAIM
+      #- OIDC_GROUPS_CLAIM
+    deploy:
+      resources:
+        limits:
+          memory: 128M
