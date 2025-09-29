@@ -1,0 +1,10 @@
+FROM alpine:latest
+
+RUN apk add --no-cache curl jq
+
+ADD add_users.sh /opt/jboss/tools/add_users.sh
+ADD users.json /opt/jboss/tools/users.json
+
+RUN chmod +x /opt/jboss/tools/add_users.sh
+
+CMD ["sh", "-c", "crontab /etc/cron.d/my-cron && tail -f /var/log/cron.log"]

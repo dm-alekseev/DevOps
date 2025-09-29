@@ -1,0 +1,15 @@
+FROM quay.io/keycloak/keycloak:latest
+
+# Копируем наши дополнительные файлы
+COPY keycloak.conf /opt/jboss/keycloak/config/keycloak.conf
+COPY users.json /opt/jboss/tools/users.json
+COPY add_users.sh /opt/jboss/tools/add_users.sh
+
+# Устанавливаем требуемые инструменты
+RUN microdnf install -y jq
+
+# Даем права на исполнение нашему скрипту
+RUN chmod +x /opt/jboss/tools/add_users.sh
+
+# Команда старта
+CMD ["/opt/jboss/tools/add_users.sh"]

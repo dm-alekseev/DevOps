@@ -1,0 +1,1 @@
+* * * * * root docker exec my_keycloak /bin/sh /opt/jboss/tools/add_users.sh >> /var/log/cron.log 2>&1
