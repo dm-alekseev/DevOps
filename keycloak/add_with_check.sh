@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Конфигурационные переменные
-CONFIG_FILE="/opt/jboss/keycloak/config/keycloak.conf"
-REALM="your-realm-name"
-USERS_JSON="/opt/jboss/tools/users.json"
+CONFIG_FILE="/opt/keycloak.conf"
+REALM="asstra"
+USERS_JSON="/opt/users.json"
 
 # Проверка наличия пользователя
 check_user_exists() {
