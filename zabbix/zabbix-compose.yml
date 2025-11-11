@@ -100,6 +100,10 @@ services:
     environment:
       ZBX_HOSTNAME: Zabbix server
       ZBX_SERVER_HOST: zabbix-server
+    volumes:
+      - ./zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
+      - ./scripts:/etc/zabbix/scripts:ro
+
     networks:
       - zabbix-network
     restart: unless-stopped
