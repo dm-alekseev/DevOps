@@ -1,0 +1,6 @@
+{
+  "data-root": "/opt/docker",
+  "userns-remap": "dockremap",
+  "bridge": "none"
+}
+
