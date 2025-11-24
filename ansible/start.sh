@@ -76,9 +76,9 @@ echo "Restart  SSH..."
 
 if command -v systemctl &>/dev/null && systemctl list-units --type=service | grep -q sshd; then
     systemctl restart sshd
-    echo "  -> Служба SSH перезапущена."
+    echo "  -> " The SSH service has been restarted."
 else
-    echo "Предупреждение: Не удалось перезапустить службу SSH (возможно, используется другая система инициализации)."
+    echo "Warning: Failed to restart the SSH service (you may be using a different init system)."
 fi
 
 
